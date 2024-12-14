@@ -4,13 +4,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Load the dataset
 df = pd.read_csv('sample_text_data.csv')
 print(df.head())
 
-# Define features and target
-X = df['text']
+# Ensure text data is string type
+X = df['text'].astype(str)
 y = df['label']
 
 # Convert text data to TF-IDF features
@@ -35,10 +36,30 @@ print(f"Accuracy: {accuracy:.2f}")
 print("Classification Report:")
 print(classification_report(y_test, y_pred))
 
-# Confusion Matrix
+# Statistical Analysis - Confusion Matrix
 cm = confusion_matrix(y_test, y_pred)
 print("\nConfusion Matrix:")
 print(cm)
+
+# Calculate precision, recall, and F1-score manually
+TP = np.diag(cm)
+FP = cm.sum(axis=0) - TP
+FN = cm.sum(axis=1) - TP
+precision = TP / (TP + FP)
+recall = TP / (TP + FN)
+F1_score = 2 * (precision * recall) / (precision + recall)
+
+print("\nManual Calculation:")
+print(f"Precision: {np.mean(precision):.2f}")
+print(f"Recall: {np.mean(recall):.2f}")
+print(f"F1 Score: {np.mean(F1_score):.2f}")
+
+# Financial Perspective - Cost of Misclassification (Example)
+false_positive_cost = 100  # Example cost of a false positive
+false_negative_cost = 200  # Example cost of a false negative
+
+financial_cost = FP.sum() * false_positive_cost + FN.sum() * false_negative_cost
+print(f"\nEstimated Financial Cost of Misclassification: ${financial_cost}")
 
 # Plot Confusion Matrix
 fig, ax = plt.subplots(figsize=(8, 6))
